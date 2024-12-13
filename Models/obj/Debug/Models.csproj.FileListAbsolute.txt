@@ -1,0 +1,6 @@
+C:\Users\FangYuan\RiderProjects\GymManagement\Models\bin\Debug\Models.dll
+C:\Users\FangYuan\RiderProjects\GymManagement\Models\bin\Debug\Models.pdb
+C:\Users\FangYuan\RiderProjects\GymManagement\Models\obj\Debug\Models.csproj.AssemblyReference.cache
+C:\Users\FangYuan\RiderProjects\GymManagement\Models\obj\Debug\Models.csproj.CoreCompileInputs.cache
+C:\Users\FangYuan\RiderProjects\GymManagement\Models\obj\Debug\Models.dll
+C:\Users\FangYuan\RiderProjects\GymManagement\Models\obj\Debug\Models.pdb
