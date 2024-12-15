@@ -20,6 +20,16 @@ namespace Tests
             _adminRepository = new AdminRepository();
             _memberRepository = new MemberRepository();
             _paymentRepository = new PaymentRepository();
+
+            // Clean database (optional, depending on setup)
+            using (var connection = DAL.SQLiteConnectionFactory.CreateConnection())
+            {
+                using (var command = connection.CreateCommand())
+                {
+                    command.CommandText = "DELETE FROM Admins; DELETE FROM Members; DELETE FROM Payments;";
+                    command.ExecuteNonQuery();
+                }
+            }
         }
 
         [Test]
@@ -29,7 +39,7 @@ namespace Tests
             var admin = new Admin
             {
                 Username = "FangYuan",
-                PasswordHash = "123"
+                PasswordHash = "123" // Plain text, will be hashed in AddAdmin method
             };
 
             // Act
@@ -47,12 +57,12 @@ namespace Tests
             var admin = new Admin
             {
                 Username = "admin3",
-                PasswordHash = "AnotherP@ssword123"
+                PasswordHash = "AnotherP@ssword123" // Plain text, will be hashed in AddAdmin method
             };
             _adminRepository.AddAdmin(admin);
 
             // Act
-            bool isValid = _adminRepository.ValidateAdmin(admin.Username, admin.PasswordHash);
+            bool isValid = _adminRepository.ValidateAdmin(admin.Username, "AnotherP@ssword123");
 
             // Assert
             Assert.IsTrue(isValid, "ValidateAdmin should return true for correct credentials.");
@@ -87,18 +97,32 @@ namespace Tests
         public void AddPayment_ShouldAddNewPayment()
         {
             // Arrange
-            int memberId = 1; // Ensure a member with this ID exists
+            var member = new Member
+            {
+                FirstName = "John",
+                LastName = "Doe",
+                Phone = "1234567890",
+                Email = "john.doe@example.com",
+                DateOfBirth = new DateTime(1985, 5, 20),
+                MembershipType = "Monthly",
+                StartDate = new DateTime(2024, 1, 1),
+                EndDate = new DateTime(2024, 2, 1)
+            };
+            _memberRepository.AddMember(member);
+            var addedMember = _memberRepository.GetAllMembers().FirstOrDefault();
+            Assert.IsNotNull(addedMember, "Member should exist before adding payment.");
+
             var payment = new Payment
             {
-                MemberID = memberId,
+                MemberID = addedMember.MemberID,
                 PaymentDate = new DateTime(2024, 12, 10),
-                Amount = 200.00,
+                Amount = 200.00m,
                 Status = "Paid"
             };
 
             // Act
             _paymentRepository.AddPayment(payment);
-            var payments = _paymentRepository.GetPaymentsByMemberId(memberId);
+            var payments = _paymentRepository.GetPaymentsByMemberId(addedMember.MemberID);
 
             // Assert
             Assert.IsTrue(payments.Any(p => p.PaymentDate == payment.PaymentDate && p.Amount == payment.Amount && p.Status == payment.Status),

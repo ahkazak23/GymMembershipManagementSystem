@@ -1,9 +1,10 @@
 namespace Models.Entities
 {
+    
     public class Admin
     {
-        public int AdminID { get; set; } // Primary key
-        public string Username { get; set; } // Admin username
-        public string PasswordHash { get; set; } // Hashed password
+        public int AdminID { get; set; }
+        public string Username { get; set; }
+        public string PasswordHash { get; set; }
     }
 }

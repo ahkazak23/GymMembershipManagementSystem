@@ -2,16 +2,20 @@ using System;
 
 namespace Models.Entities
 {
+
+
     public class Member
     {
-        public int MemberID { get; set; } // Primary key
-        public string FirstName { get; set; } // Member's first name
-        public string LastName { get; set; } // Member's last name
-        public string Phone { get; set; } // Member's phone number
-        public string Email { get; set; } // Member's email address
-        public DateTime DateOfBirth { get; set; } // Member's birthdate
-        public string MembershipType { get; set; } // e.g., Monthly, Annual
-        public DateTime StartDate { get; set; } // Membership start date
-        public DateTime EndDate { get; set; } // Membership end date
+        public int MemberID { get; set; }
+        public string FirstName { get; set; }
+        public string LastName { get; set; }
+        public string Phone { get; set; }
+        public string Email { get; set; }
+        public DateTime? DateOfBirth { get; set; }
+        public string Gender { get; set; } // Male, Female, Other
+        public string MembershipType { get; set; } // Monthly, Quarterly, Yearly
+        public DateTime StartDate { get; set; }
+        public DateTime EndDate { get; set; }
+        public bool IsActive { get; set; }
     }
 }

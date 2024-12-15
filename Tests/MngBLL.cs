@@ -1,6 +1,6 @@
 using System;
 using System.Collections.Generic;
-using BLL.Managers; // Replace with your actual BLL namespace
+using BLL.Managers;
 using Models.Entities;
 using NUnit.Framework;
 
@@ -12,6 +12,7 @@ namespace Tests
         private AdminManager _adminManager;
         private MemberManager _memberManager;
         private PaymentManager _paymentManager;
+        private MembershipLogManager _logManager;
 
         [SetUp]
         public void SetUp()
@@ -20,14 +21,14 @@ namespace Tests
             _adminManager = new AdminManager();
             _memberManager = new MemberManager();
             _paymentManager = new PaymentManager();
+            _logManager = new MembershipLogManager();
 
-            // Clean database (optional, depending on setup)
-            // Ensure no data from previous tests interferes with the current test
+            // Clean database
             using (var connection = DAL.SQLiteConnectionFactory.CreateConnection())
             {
                 using (var command = connection.CreateCommand())
                 {
-                    command.CommandText = "DELETE FROM Admins; DELETE FROM Members; DELETE FROM Payments;";
+                    command.CommandText = "DELETE FROM Admins; DELETE FROM Members; DELETE FROM Payments; DELETE FROM MembershipLogs;";
                     command.ExecuteNonQuery();
                 }
             }
@@ -96,7 +97,7 @@ namespace Tests
             {
                 MemberID = 1,
                 PaymentDate = new DateTime(2024, 12, 10),
-                Amount = 100.00,
+                Amount = 100.00m,
                 Status = "InvalidStatus" // Invalid status
             };
 
@@ -128,6 +129,47 @@ namespace Tests
 
             // Assert
             Assert.IsEmpty(payments, "GetPaymentsByMemberId should return an empty list for a non-existent member.");
+        }
+
+        [Test]
+        public void AddLog_ShouldAddLogSuccessfully()
+        {
+            // Arrange
+            var log = new MembershipLog
+            {
+                MemberID = 1,
+                EventDate = DateTime.Now,
+                EventType = "Renewed"
+            };
+
+            // Act
+            _logManager.AddMembershipLog(log);
+
+            // Assert
+            var logs = _logManager.GetAllLogs();
+            Assert.IsNotEmpty(logs, "AddLog should successfully add a new log.");
+            Assert.AreEqual(1, logs.Count, "There should be exactly one log added.");
+        }
+
+        [Test]
+        public void GetRecentLogs_ShouldReturnCorrectNumberOfLogs()
+        {
+            // Arrange
+            for (int i = 0; i < 5; i++)
+            {
+                _logManager.AddMembershipLog(new MembershipLog
+                {
+                    MemberID = i + 1,
+                    EventDate = DateTime.Now.AddDays(-i),
+                    EventType = "Renewed"
+                });
+            }
+
+            // Act
+            var recentLogs = _logManager.GetRecentLogs(3);
+
+            // Assert
+            Assert.AreEqual(3, recentLogs.Count, "GetRecentLogs should return the correct number of logs.");
         }
     }
 }

@@ -14,12 +14,10 @@ namespace BLL.Managers
         }
 
         /// <summary>
-        /// Registers a new admin.
+        /// Registers a new admin with a validated username and password.
         /// </summary>
-        /// <param name="username">The username of the admin.</param>
-        /// <param name="plainTextPassword">The plain text password of the admin.</param>
-        /// <exception cref="ArgumentException">Thrown if username or password is invalid.</exception>
-        /// <exception cref="InvalidOperationException">Thrown if the username already exists.</exception>
+        /// <param name="username">The admin's username.</param>
+        /// <param name="plainTextPassword">The plain text password.</param>
         public void RegisterAdmin(string username, string plainTextPassword)
         {
             ValidateUsername(username);
@@ -27,7 +25,7 @@ namespace BLL.Managers
 
             if (_adminRepository.AdminExists(username))
             {
-                throw new InvalidOperationException("An admin with this username already exists.");
+                throw new InvalidOperationException($"The username '{username}' is already taken.");
             }
 
             _adminRepository.AddAdmin(new Admin
@@ -38,12 +36,11 @@ namespace BLL.Managers
         }
 
         /// <summary>
-        /// Logs in an admin by validating their credentials.
+        /// Validates admin login credentials.
         /// </summary>
-        /// <param name="username">The username of the admin.</param>
-        /// <param name="plainTextPassword">The plain text password of the admin.</param>
-        /// <returns>True if the credentials are valid; otherwise, false.</returns>
-        /// <exception cref="ArgumentException">Thrown if username or password is invalid.</exception>
+        /// <param name="username">The username.</param>
+        /// <param name="plainTextPassword">The plain text password.</param>
+        /// <returns>True if the credentials are valid, false otherwise.</returns>
         public bool LoginAdmin(string username, string plainTextPassword)
         {
             ValidateUsername(username);
@@ -52,11 +49,6 @@ namespace BLL.Managers
             return _adminRepository.ValidateAdmin(username, plainTextPassword);
         }
 
-        /// <summary>
-        /// Validates the format of the username.
-        /// </summary>
-        /// <param name="username">The username to validate.</param>
-        /// <exception cref="ArgumentException">Thrown if the username is invalid.</exception>
         private void ValidateUsername(string username)
         {
             if (string.IsNullOrWhiteSpace(username))
@@ -66,70 +58,45 @@ namespace BLL.Managers
 
             if (username.Length < 3 || username.Length > 20)
             {
-                throw new ArgumentException("Username must be between 3 and 20 characters.");
+                throw new ArgumentException("Username must be between 3 and 20 characters long.");
             }
 
-            if (!IsValidUsername(username))
+            if (!System.Text.RegularExpressions.Regex.IsMatch(username, @"^[a-zA-Z0-9_]+$"))
             {
-                throw new ArgumentException("Username can only contain letters, numbers, and underscores.");
+                throw new ArgumentException("Username may only contain letters, numbers, and underscores.");
             }
         }
 
-        /// <summary>
-        /// Validates the format of the password.
-        /// </summary>
-        /// <param name="plainTextPassword">The password to validate.</param>
-        /// <exception cref="ArgumentException">Thrown if the password is invalid.</exception>
-        private void ValidatePassword(string plainTextPassword)
+        private void ValidatePassword(string password)
         {
-            if (string.IsNullOrWhiteSpace(plainTextPassword))
+            if (string.IsNullOrWhiteSpace(password))
             {
                 throw new ArgumentException("Password cannot be empty.");
             }
 
-            if (plainTextPassword.Length < 8)
+            if (password.Length < 5)
             {
-                throw new ArgumentException("Password must be at least 8 characters long.");
+                throw new ArgumentException("Password must be at least 5 characters long.");
             }
 
-            if (!HasRequiredPasswordComplexity(plainTextPassword))
+            if (!HasRequiredPasswordComplexity(password))
             {
-                throw new ArgumentException("Password must contain at least one uppercase letter, one lowercase letter, one number, and one special character.");
+                throw new ArgumentException("Password must include an uppercase letter, a lowercase letter, a number, and a special character.");
             }
         }
 
-        /// <summary>
-        /// Checks if a username is valid.
-        /// </summary>
-        /// <param name="username">The username to check.</param>
-        /// <returns>True if the username is valid; otherwise, false.</returns>
-        private bool IsValidUsername(string username)
-        {
-            // Simple regex for alphanumeric and underscores
-            return System.Text.RegularExpressions.Regex.IsMatch(username, @"^[a-zA-Z0-9_]+$");
-        }
-
-        /// <summary>
-        /// Checks if a password meets complexity requirements.
-        /// </summary>
-        /// <param name="password">The password to check.</param>
-        /// <returns>True if the password meets requirements; otherwise, false.</returns>
         private bool HasRequiredPasswordComplexity(string password)
         {
-            bool hasUppercase = false;
-            bool hasLowercase = false;
-            bool hasNumber = false;
-            bool hasSpecial = false;
+            bool hasUpper = false, hasLower = false, hasDigit = false, hasSpecial = false;
 
             foreach (char c in password)
             {
-                if (char.IsUpper(c)) hasUppercase = true;
-                if (char.IsLower(c)) hasLowercase = true;
-                if (char.IsDigit(c)) hasNumber = true;
+                if (char.IsUpper(c)) hasUpper = true;
+                if (char.IsLower(c)) hasLower = true;
+                if (char.IsDigit(c)) hasDigit = true;
                 if (!char.IsLetterOrDigit(c)) hasSpecial = true;
 
-                if (hasUppercase && hasLowercase && hasNumber && hasSpecial)
-                    return true;
+                if (hasUpper && hasLower && hasDigit && hasSpecial) return true;
             }
 
             return false;

@@ -26,3 +26,5 @@ C:\Users\FangYuan\RiderProjects\GymManagement\UI\bin\Debug\System.Data.SQLite.EF
 C:\Users\FangYuan\RiderProjects\GymManagement\UI\bin\Debug\System.Data.SQLite.Linq.dll
 C:\Users\FangYuan\RiderProjects\GymManagement\UI\bin\Debug\EntityFramework.xml
 C:\Users\FangYuan\RiderProjects\GymManagement\UI\bin\Debug\EntityFramework.SqlServer.xml
+C:\Users\FangYuan\RiderProjects\GymManagement\UI\obj\Debug\UI.DashboardForm.resources
+C:\Users\FangYuan\RiderProjects\GymManagement\UI\obj\Debug\UI.MemberManagementForm.resources

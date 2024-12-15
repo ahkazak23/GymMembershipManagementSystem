@@ -1,7 +1,7 @@
 using System;
+using System.Collections.Generic;
 using System.Data.SQLite;
 using Models.Entities;
-using BCrypt.Net;
 
 namespace DAL.Repositories
 {
@@ -86,16 +86,86 @@ namespace DAL.Repositories
                         {
                             return new Admin
                             {
-                                AdminID = reader.GetInt32(0),  // AdminID
-                                Username = reader.GetString(1), // Username
-                                PasswordHash = reader.GetString(2)  // PasswordHash
+                                AdminID = reader.GetInt32(0),
+                                Username = reader.GetString(1),
+                                PasswordHash = reader.GetString(2)
                             };
                         }
                     }
                 }
             }
 
-            return null; // Return null if no matching admin is found
+            return null;
+        }
+
+        /// <summary>
+        /// Updates an admin's password securely.
+        /// </summary>
+        /// <param name="username">Admin's username.</param>
+        /// <param name="newPlainTextPassword">New plain text password.</param>
+        public void UpdateAdminPassword(string username, string newPlainTextPassword)
+        {
+            using (var connection = SQLiteConnectionFactory.CreateConnection())
+            {
+                string query = "UPDATE Admins SET PasswordHash = @PasswordHash WHERE Username = @Username";
+                string hashedPassword = BCrypt.Net.BCrypt.HashPassword(newPlainTextPassword);
+
+                using (var command = new SQLiteCommand(query, connection))
+                {
+                    command.Parameters.AddWithValue("@Username", username);
+                    command.Parameters.AddWithValue("@PasswordHash", hashedPassword);
+
+                    command.ExecuteNonQuery();
+                }
+            }
+        }
+
+        /// <summary>
+        /// Deletes an admin by their username.
+        /// </summary>
+        /// <param name="username">Admin's username.</param>
+        public void DeleteAdmin(string username)
+        {
+            using (var connection = SQLiteConnectionFactory.CreateConnection())
+            {
+                string query = "DELETE FROM Admins WHERE Username = @Username";
+
+                using (var command = new SQLiteCommand(query, connection))
+                {
+                    command.Parameters.AddWithValue("@Username", username);
+                    command.ExecuteNonQuery();
+                }
+            }
+        }
+
+        /// <summary>
+        /// Retrieves a list of all admins.
+        /// </summary>
+        /// <returns>List of Admin objects.</returns>
+        public List<Admin> GetAllAdmins()
+        {
+            var admins = new List<Admin>();
+
+            using (var connection = SQLiteConnectionFactory.CreateConnection())
+            {
+                string query = "SELECT AdminID, Username, PasswordHash FROM Admins";
+
+                using (var command = new SQLiteCommand(query, connection))
+                using (var reader = command.ExecuteReader())
+                {
+                    while (reader.Read())
+                    {
+                        admins.Add(new Admin
+                        {
+                            AdminID = reader.GetInt32(0),
+                            Username = reader.GetString(1),
+                            PasswordHash = reader.GetString(2)
+                        });
+                    }
+                }
+            }
+
+            return admins;
         }
     }
 }

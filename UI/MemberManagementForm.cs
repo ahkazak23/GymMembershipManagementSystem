@@ -1,3 +1,4 @@
+using System;
 using System.Windows.Forms;
 
 namespace UI
@@ -7,6 +8,11 @@ namespace UI
         public MemberManagementForm()
         {
             InitializeComponent();
+        }
+
+        private void MemberManagementForm_Load(object sender, EventArgs e)
+        {
+            
         }
     }
 }

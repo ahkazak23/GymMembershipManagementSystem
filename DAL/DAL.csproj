@@ -60,6 +60,7 @@
     <ItemGroup>
         <Compile Include="Repositories\AdminRepository.cs" />
         <Compile Include="Repositories\MemberRepository.cs" />
+        <Compile Include="Repositories\MembershipLogRepository.cs" />
         <Compile Include="Repositories\PaymentRepository.cs" />
         <Compile Include="SQLiteConnectionFactory.cs" />
         <Compile Include="Properties\AssemblyInfo.cs" />
